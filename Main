@@ -1,0 +1,259 @@
+from tkinter import *
+import random
+import smtplib
+import time
+import urllib.request
+from tkinter import messagebox as msg
+import json
+import uuid
+import datetime as dt
+
+
+class Mtms():
+    otp=0
+    fare_per_km=7
+
+
+
+
+                #For data menubar
+    def data_msg(event):
+       a=msg.showwarning("Warning","You are not an Authorized person")
+    
+                #For feedback menubar
+    def feedback_msg(event):
+        msg.showinfo("Feedback","Kindly, Share your feedback at ttyy7212@gmail.com")
+                #Otp generation and sending code
+    
+                #For help menubar
+    def help_msg(event):
+        msg.showinfo("Help","Admin Contact details : \nAdmin name : Rishi Sharma\nPhone : 9358235617\nEmail : ttyy7212@gmail.com")
+
+
+                #For otp request
+    def otp_sender(self):
+
+                #For connectivity checking
+        def connect(host='http://google.com'):
+            try:
+                urllib.request.urlopen(host)
+                return True
+            except:
+                return False
+        if connect():
+            status_var.set("Status : Sending....")
+            status_bar.update()
+            self.otp="".join([str(random.randint(0,9))for i in range(4)])
+            server=smtplib.SMTP('smtp.gmail.com',587)
+            server.starttls()
+            server.login('ttyy7212@gmail.com','pvvtqipnbtbtqptl')
+            subject="Otp from MTMS"
+            msg="Subject :{}\nHello\nYour OTP is {}\nBy MTMS\nAdmin : Rishi Sharma".format(subject,self.otp)
+            useremail=email_value.get()
+            server.sendmail('ttyy7212@gmail.com',useremail,msg)
+            server.quit()
+            status_var.set("Status : Successfully Send....")
+            status_bar.update()       
+        else:
+            status_var.set("Status : Need an active Internet connection....")
+            status_bar.update()
+            time.sleep(3)
+            status_var.set("Status : Ready for inputs....")
+            status_bar.update()
+
+                #Otp verification code
+    def otp_verification(self):
+        status_var.set("Status : Verifying....")
+        status_bar.update()
+        if pass_value.get()==self.otp:
+            time.sleep(1)
+            status_var.set("Status : Verified....")
+            status_bar.update()
+            self.working_page()
+
+        else:
+            time.sleep(1)
+            status_var.set("Status : Wrong Otp , please retry....")
+            status_bar.update()
+            
+
+   
+                #Working page, Page--2
+    def working_page(self):
+        login_page_root.destroy()
+        working_page_root=Tk()
+        working_page_root.geometry("530x445")
+        working_page_root.maxsize(530,440)
+        working_page_root.minsize(530,445)
+        working_page_root.wm_iconbitmap("11.ico")
+        working_page_root.title("Metro token mangement system")
+
+                #main menu
+        menubar=Menu(working_page_root)
+        data_submenu=Menu(menubar,tearoff=0)
+        menubar.add_cascade(label="Data",menu=data_submenu)
+        data_submenu.add_command(label="Upadation",command=mtms_obj.data_msg)
+        menubar.add_command(label="Feedback",command=mtms_obj.feedback_msg)
+        menubar.add_command(label="Help",command=mtms_obj.help_msg)
+        working_page_root.config(menu=menubar)
+
+
+
+                #Sliders for stations
+        board_st_label=Label(working_page_root,text="Boarding Station",
+            font="lucida 15 bold underline")
+        board_st_slider=Scale(working_page_root,from_=1,to=6,orient=HORIZONTAL,tickinterval=1)
+        board_st_slider.set(1)
+        dest_st_label=Label(working_page_root,text="Destination Station",
+            font="lucida 15 bold underline")
+        dest_st_slider=Scale(working_page_root,from_=1,to=6,orient=HORIZONTAL,tickinterval=1)
+        dest_st_slider.set(2)
+        board_st_slider.grid(row=0,column=1)
+        board_st_label.grid(row=0,column=0,padx=50)
+        dest_st_label.grid(row=1,column=0)
+        dest_st_slider.grid(row=1,column=1)
+        
+                #no.passenger input
+        no_of_pass_label=Label(working_page_root,text="Number of passengers",
+            font="lucida 15 bold underline").grid(row=2,column=0,pady=20)
+        
+        no_of_pass_value=IntVar()
+        no_of_pass_value.set(1)
+        no_of_pass_entry=Entry(working_page_root,textvariable=no_of_pass_value,
+        font="lucida 12 bold",).grid(row=2,column=1,pady=20,padx=10)
+        def screen():
+            if no_of_pass_value.get()!=0:    
+                #listbox as screen
+                if cb1_value.get():
+                    self.fare_per_km=5
+                else:
+                    self.fare_per_km=7
+                status_var_1.set("    Processing....         ")  
+                status_bar_1.update()          
+                time.sleep(1)
+                status_var_1.set("    Successfull Booked....      ")
+                status_bar_1.update()                         
+                lb1=Listbox(working_page_root)
+                token_dict={1:"Blue",2:"Pink",3:"Yellow",4:"Green",5:"Red",6:"Brown"}
+                fare=abs(board_st_slider.get()-dest_st_slider.get())*no_of_pass_value.get()*self.fare_per_km
+                platform=1 if board_st_slider.get()>dest_st_slider.get() else 2
+                lb1.insert(END,'             Screen')
+                lb1.insert(END,"------------------------")
+                lb1.insert(END,f"Boarding Station : {board_st_slider.get()}")
+                lb1.insert(END,f"Destination Station : {dest_st_slider.get()}")
+                lb1.insert(END,f"Platform : {platform}")
+                lb1.insert(END,f"Token : {no_of_pass_value.get()} {token_dict[dest_st_slider.get()]}")
+                lb1.insert(END,f"Fare : ₹ {fare}")
+                lb1.grid(row=3,column=1)
+                data_infile(self)
+            else:
+                status_var_1.set("    Processing....         ")  
+                status_bar_1.update()          
+                time.sleep(1)
+                status_var_1.set("    Invalid input...      ")
+                status_bar_1.update()                 
+
+
+            #data updation code
+        def data_infile(self):
+            transaction_Id=str(uuid.uuid1())[:8]
+            data_list=[]
+            fare=(abs(board_st_slider.get()-dest_st_slider.get())*mtms_obj.fare_per_km)*no_of_pass_value.get()
+            data_dict={"Transaction":transaction_Id,"Fare":fare,
+                        "Number of passenger":no_of_pass_value.get(),"Boarding Station":board_st_slider.get(),
+                        "Destination Station":dest_st_slider.get(),"Use benifits":cb1_value.get()}
+            data_list.append(data_dict)
+            date=dt.datetime.now().date()
+            with open(f"{date}.json","a+") as f:
+                f.write(json.dumps(data_list))
+                f.write('\n')
+                cb1.deselect()
+
+                #Student or Govt. official fare 
+        cb1_value=IntVar()        
+        cb1=Checkbutton(working_page_root,
+            text="Student / Govt. offical benefit",variable=cb1_value)
+        cb1.grid(row=3,column=0)
+ 
+                #Submit button code
+        submit_button_frame=Frame(working_page_root,background="blue",
+        relief=SUNKEN,borderwidth=7)
+        submit_button=Button(submit_button_frame,text="Submit",
+        font="lucida 12 bold",command=screen)
+        submit_button_frame.grid(row=4,column=0)
+        submit_button.grid(row=4,column=0)
+
+            #working page status bar
+        Label(working_page_root,text="Status Bar",font="lucida 18 bold underline").grid(row=5,column=0)
+        status_var_1=StringVar()
+        status_var_1.set("    Reading inputs....       ")
+        status_bar_1=Label(working_page_root,textvariable=status_var_1,
+            relief=SUNKEN,anchor=W,font="helvetica 13 italic")
+        status_bar_1.grid(pady=10,column=1,row=5)
+
+        working_page_root.mainloop()
+
+        pass
+
+
+                #Front login page, Page--1
+
+mtms_obj=Mtms()  
+login_page_root=Tk()
+login_page_root.geometry("520x380")
+login_page_root.maxsize(520,380)
+login_page_root.minsize(520,380)
+login_page_root.wm_iconbitmap("11.ico")
+login_page_root.title('Metro token mangement system')
+#login_page_root.wm_iconbitmap()
+
+
+
+                #Login page heading code
+
+heading_frame=Frame(login_page_root,bg="grey",
+    borderwidth=7,relief=SUNKEN)
+heading_label=Label(heading_frame,
+    text="Metro token mangement system",
+    font="lucida 25 bold italic",bg="yellow")
+heading_frame.pack()
+heading_label.pack()
+
+                    
+                    
+                #Login_page_rest body
+
+Label(login_page_root,text="Login",
+    font="lucida 27 bold italic underline").pack(pady=10)
+Label(login_page_root,text="Email ID :",
+    font="lucida 17 bold underline").pack(anchor=W,padx=80)
+email_value=StringVar()
+email_value.set("@gmail.com")
+Entry(login_page_root,font="lucida 14 bold",
+    textvariable=email_value).pack(anchor=W,padx=150,pady=2)
+send_button_frame=Frame(login_page_root,bg="black",
+    borderwidth=4,relief=SUNKEN)
+Button(send_button_frame,text="Send",font="lucida 9 bold",
+    command=mtms_obj.otp_sender).pack()
+send_button_frame.pack(anchor=W,padx=230,pady=8)
+Label(login_page_root,text="OTP :",
+    font="lucida 17 bold underline").pack(anchor=W,padx=80)
+pass_value=StringVar()
+Entry(login_page_root,font="lucida 14 bold",
+    textvariable=pass_value).pack(anchor=W,padx=150)
+verify_button_frame=Frame(login_page_root,bg="blue",
+    borderwidth=4,relief=SUNKEN)
+Button(verify_button_frame,text="Verify",font="lucida 9 bold",
+    command=mtms_obj.otp_verification).pack()
+verify_button_frame.pack(anchor=W,padx=230,pady=10)
+
+                #status bar
+
+status_var=StringVar()
+status_var.set("Status : Ready for inputs....")
+status_bar=Label(login_page_root,textvariable=status_var,
+    relief=SUNKEN,anchor=W,font="helvetica 11 italic")
+status_bar.pack(fill=X,side=BOTTOM)
+
+
+login_page_root.mainloop()
